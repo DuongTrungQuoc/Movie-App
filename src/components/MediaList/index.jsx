@@ -1,27 +1,18 @@
-import { useEffect, useState } from "react";
-import MovieCard from "./MovieCard";
+import { useState } from "react";
+import MovieCard from "@components/MovieCard";
+import useFetch from "@hooks/useFetch";
 
 const MediaList = ({ title, tabs }) => {
-  const [mediaList, setMediaList] = useState([]);
+  // const [mediaList, setMediaList] = useState([]);
   const [activeTabId, setActiveTabId] = useState(tabs[0]?.id);
-  useEffect(() => {
-    const url = tabs.find((tab) => tab.id === activeTabId)?.url;
-    if (url) {
-      fetch(url, {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZWMxMjI5N2FiYjVjNTgxOGNlODFhN2Y3MmU2ZmVkYyIsIm5iZiI6MTczODc4ODQ0MS4yNCwic3ViIjoiNjdhM2NlNTlkNDdiYzc3Y2I4ODU5YTk5Iiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.zzRUON7EflyguqvKdtoCGio9RlogBqhm38_yxvJZdUU",
-        },
-      }).then(async (res) => {
-        const data = await res.json();
 
-        const trendingMediaList = data.results.slice(0, 12);
-        setMediaList(trendingMediaList);
-      });
-    }
-  }, [activeTabId, tabs]);
+  const url = tabs.find((tab) => tab.id === activeTabId)?.url;
+  const { data } = useFetch({
+    url: url,
+    method: "GET",
+  });
+  const mediaList = (data.results || []).slice(0, 12);
+
   console.log(mediaList);
   return (
     <>
@@ -49,6 +40,7 @@ const MediaList = ({ title, tabs }) => {
               poster={media.poster_path}
               point={media.vote_average}
               mediaType={media.media_type || activeTabId}
+              id={media.id}
             />
           ))}
         </div>

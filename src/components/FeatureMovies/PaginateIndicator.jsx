@@ -9,10 +9,6 @@ const PaginateIndicator = ({ movies, activeMovieId, setActiveMovieId }) => {
             onClick={() => setActiveMovieId(movie.id)}
           ></li>
         ))}
-        {/* <li className="h-1 w-6 cursor-pointer bg-slate-100"></li>
-        <li className="h-1 w-6 cursor-pointer bg-slate-600"></li>
-        <li className="h-1 w-6 cursor-pointer bg-slate-600"></li>
-        <li className="h-1 w-6 cursor-pointer bg-slate-600"></li> */}
       </ul>
     </div>
   );

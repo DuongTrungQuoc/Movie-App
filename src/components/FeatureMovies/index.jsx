@@ -1,33 +1,48 @@
 import PaginateIndicator from "./PaginateIndicator";
 import Movie from "./Movie";
 import { useEffect, useState } from "react";
+import useFetch from "@hooks/useFetch";
 
 const FeatureMovies = () => {
-  const [movies, setMovies] = useState([]);
+  //const [movies, setMovies] = useState([]);
   const [activeMovieId, setActiveMovieId] = useState();
 
-  useEffect(() => {
-    fetch("https://api.themoviedb.org/3/movie/popular", {
+  const { data: popularMoviesResponse } = useFetch({
+    url: `/discover/movie?include_adult=true&include_video=true&language=en-US&page=1&sort_by=popularity.desc`,
+    method: "GET",
+  });
+
+  const { data: videoResponse } = useFetch(
+    {
+      url: `/movie/${activeMovieId}/videos`,
       method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZWMxMjI5N2FiYjVjNTgxOGNlODFhN2Y3MmU2ZmVkYyIsIm5iZiI6MTczODc4ODQ0MS4yNCwic3ViIjoiNjdhM2NlNTlkNDdiYzc3Y2I4ODU5YTk5Iiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.zzRUON7EflyguqvKdtoCGio9RlogBqhm38_yxvJZdUU",
-      },
-    }).then(async (res) => {
-      const data = await res.json();
-      const popularMovies = data.results.slice(0, 4);
-      setMovies(popularMovies);
-      setActiveMovieId(popularMovies[0].id);
-    });
-  }, []);
+    },
+    { enabled: !!activeMovieId },
+  );
+
+  const movies = (popularMoviesResponse.results || []).slice(0, 4);
+  useEffect(() => {
+    if (movies[0]?.id) {
+      setActiveMovieId(movies[0].id);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(movies)]);
   console.log(movies);
   return (
     <div className="relative text-white">
       {movies
         .filter((movie) => movie.id === activeMovieId)
         .map((movie) => (
-          <Movie key={movie.id} data={movie} />
+          <Movie
+            key={movie.id}
+            data={movie}
+            trailerVideoKey={
+              (videoResponse?.results || []).find(
+                (video) => video.type === "Trailer" && video.site === "YouTube",
+              )?.key
+            }
+          />
         ))}
 
       <PaginateIndicator
